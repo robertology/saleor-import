@@ -36,3 +36,13 @@ class Category(ImportType):
             "description": "",
             "seo": {"title": "", "description": ""},
         }
+
+    def get_import_data(self):
+        data = {"input": super().get_import_data()}
+
+        if self.data.get("parent"):
+            parent = self.importer.getCategory(self.data.get("parent"))
+            if parent:
+                data["parent"] = parent["id"]
+
+        return data
