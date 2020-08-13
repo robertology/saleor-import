@@ -1,5 +1,7 @@
 import json
 import tempfile
+
+from python_graphql_client import GraphqlClient
 from .types import *
 
 
@@ -9,14 +11,15 @@ class Api:
         self.token = token
 
     def import_object(self, obj):
-        return self.post(self._get_import_query(obj.get_import_data()))
+        (query, variables) = obj.get_import_query()
+        return self.post(query, variables)
 
-    def _get_import_query(self, data):
-        return {"mutation": {"data": data}}
-
-    def post(self, data):
-        # TODO
-        return data
+    def post(self, query, variables):
+        client = GraphqlClient(
+            endpoint=self.url,
+            headers={"Authorization": "JWT {}".format(self.token)}
+        )
+        return client.execute(query=query, variables=variables)
 
 
 class Importer:
@@ -37,18 +40,23 @@ class Importer:
 
     def _process_entry(self, entry):
         if entry["type"] == "category":
-            entry["result"] = self.api.import_object(Category(self, entry["data"]))
-            self._cache(entry, "slug")
+            obj = Category(self, entry["data"])
+            result = self.api.import_object(obj)["data"]
+            if result:
+                result = result[obj.mutation_name][obj.query_name]
+                self._cache(entry["type"], result, "slug")
+
+            entry["result"] = result
             self._log(entry)
 
-    def _cache(self, data, key):
-        if key not in data["result"]:
+    def _cache(self, type, data, key):
+        if not data or key not in data:
             return
 
-        if data["type"] not in self.cache:
-            self.cache[data["type"]] = {}
+        if type not in self.cache:
+            self.cache[type] = {}
 
-        self.cache[data["type"]][data["result"][key]] = data["result"]
+        self.cache[type][data[key]] = data
 
     def _log(self, data):
         self.log_file.write(json.dumps(data) + "\n")
