@@ -14,11 +14,6 @@ class ImportType(ABC):
 
     @property
     @abstractmethod
-    def query_name(self):
-        pass
-
-    @property
-    @abstractmethod
     def _mutation_return_query(self):
         pass
 
@@ -31,6 +26,10 @@ class ImportType(ABC):
     @abstractmethod
     def _mutation_input_types(self):
         pass
+
+    @property
+    def query_name(self):
+        return self._mutation_return_query.split('{', 1)[0]
 
     def get_import_query(self):
         data = self._mutation_input_data
@@ -77,10 +76,6 @@ class Category(ImportType):
     @property
     def mutation_name(self):
         return "categoryCreate"
-
-    @property
-    def query_name(self):
-        return "category"
 
     @property
     def _mutation_return_query(self):
