@@ -31,6 +31,11 @@ class ImportType(ABC):
     def query_name(self):
         return self._mutation_return_query.split('{', 1)[0]
 
+    @staticmethod
+    def factory(type, *data):
+        if type == "category": return Category(*data)
+        if type == "attribute": return Attribute(*data)
+
     def get_import_query(self):
         data = self._mutation_input_data
         input_types = {name: type for name, type in self._mutation_input_types.items() if name in data}

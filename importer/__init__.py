@@ -2,7 +2,7 @@ import json
 import tempfile
 
 from python_graphql_client import GraphqlClient
-from .types import *
+from .types import ImportType
 
 
 class Api:
@@ -39,13 +39,7 @@ class Importer:
         return self.log_file
 
     def _process_entry(self, entry):
-        obj = None
-
-        if entry["type"] == "category":
-            obj = Category(self, entry["data"])
-
-        if entry["type"] == "attribute":
-            obj = Attribute(self, entry["data"])
+        obj = ImportType.factory(entry["type"], self, entry["data"])
 
         if obj is not None:
             result = self.api.import_object(obj)["data"]
