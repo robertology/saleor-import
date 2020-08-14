@@ -63,14 +63,74 @@ class ImportType(ABC):
         data = {}
 
         for key, val in keys.items():
-            value = input_data.get(key, None)
+            value = val if isinstance(val, bool) else None
+            value = input_data.get(key, value)
+
             if value is not None:
                 if isinstance(val, dict):
                     value = self._get_data_from_definition(val, value)
 
-                data[key] = value
+                if isinstance(val, bool) and not isinstance(value, bool):
+                    value = val
+
+                if isinstance(val, list):
+                    if isinstance(val[0], str):
+                        if value not in val:
+                            value = None
+
+                    if isinstance(val[0], dict):
+                        if isinstance(value, dict):
+                            temp = ()
+                            for v in value:
+                                v = self._get_data_from_definition(val[0], v)
+                                if v:
+                                    temp.push = v
+
+                            value = temp
+                        else:
+                            value = None
+
+                if value is not None:
+                    data[key] = value
 
         return data
+
+
+class Attribute(ImportType):
+    @property
+    def mutation_name(self):
+        return "attributeCreate"
+
+    @property
+    def _mutation_return_query(self):
+        return "attribute{ id, slug }"
+
+    @property
+    def _mutation_input_definition(self):
+        return {
+            "slug": "",
+            "name": "",
+            "inputType": ("DROPDOWN", "MULTISELECT"),
+            "values": ({"name": ""}),
+            "valueRequired": True,
+            "isVariantOnly": False,
+            "visibleInStorefront": True,
+            "filterableInStorefront": True,
+            "filterableInDashboard": True,
+            "availableInGrid": True,
+            "storefrontSearchPosition": 0,
+        }
+
+    @property
+    def _mutation_input_data(self):
+        return {"input": super()._get_import_data()}
+
+    @property
+    def _mutation_input_types(self):
+        return {
+            "input": "AttributeCreateInput!",
+        }
+
 
 class Category(ImportType):
     @property

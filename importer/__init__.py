@@ -39,8 +39,15 @@ class Importer:
         return self.log_file
 
     def _process_entry(self, entry):
+        obj = None
+
         if entry["type"] == "category":
             obj = Category(self, entry["data"])
+
+        if entry["type"] == "attribute":
+            obj = Attribute(self, entry["data"])
+
+        if obj is not None:
             result = self.api.import_object(obj)["data"]
             if result:
                 result = result[obj.mutation_name][obj.query_name]
