@@ -65,3 +65,7 @@ class Importer:
     def getCategory(self, slug):
         # TODO get from API if not cached
         return self.cache.get("category", {}).get(slug)
+
+    def getAttribute(self, slug):
+        # TODO get from API if not cached
+        return self.cache.get("attribute", {}).get(slug)

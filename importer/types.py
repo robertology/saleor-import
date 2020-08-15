@@ -176,3 +176,53 @@ class Category(ImportType):
             "input": "CategoryInput!",
             "parent": "ID",
         }
+
+
+class ProductType(ImportType):
+    @property
+    def mutation_name(self):
+        return "productTypeCreate"
+
+    @property
+    def _mutation_return_query(self):
+        return "productType{ id, slug }"
+
+    @property
+    def _mutation_input_definition(self):
+        return {
+            "slug": "",
+            "name": "",
+            "productAttributes": [""],
+            "variantAttributes": [""],
+            "hasVariants": False,
+            "isShippingRequired": False,
+            "isDigital": False,
+            "taxCode": "",
+            "weight": "",
+        }
+
+    @property
+    def _mutation_input_data(self):
+        data = super()._get_import_data()
+
+        if "productAttributes" in data:
+            temp = []
+            for v in data["productAttributes"]:
+                v = self.importer.getAttribute(v)
+                if v:
+                    temp.append(v)
+
+        if "variantAttributes" in data:
+            temp = []
+            for v in data["variantAttributes"]:
+                v = self.importer.getAttribute(v)
+                if v:
+                    temp.append(v)
+
+        return {"input": data}
+
+    @property
+    def _mutation_input_types(self):
+        return {
+            "input": "ProductTypeInput!",
+        }
