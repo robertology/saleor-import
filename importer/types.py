@@ -298,3 +298,44 @@ class ProductType(ImportType):
         return {
             "input": "ProductTypeInput!",
         }
+
+
+class Warehouse(ImportType):
+    @property
+    def mutation_name(self):
+        return "createWarehouse"
+
+    @property
+    def _mutation_return_query(self):
+        return "warehouse{ id, slug }"
+
+    @property
+    def _mutation_input_definition(self):
+        return {
+            "slug": "",
+            "name": "",
+            "companyName": "",
+            "email": "",
+            "address": {
+                "streetAddress1": "",
+                "streetAddress2": "",
+                "city": "",
+                "cityArea": "",
+                "postalCode": "",
+                "country": "",
+                "countryArea": "",
+                "phone": "",
+            },
+            "shippingZones": [""],
+        }
+
+    @property
+    def _mutation_input_data(self):
+        data = super()._get_import_data()
+        return {"input": data}
+
+    @property
+    def _mutation_input_types(self):
+        return {
+            "input": "WarehouseCreateInput!",
+        }

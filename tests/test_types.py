@@ -113,3 +113,28 @@ class TestProductType(unittest.TestCase):
         variables = {"input": variables}
 
         self.assertEqual(self._new_obj(data).get_import_query(), (query, variables))
+
+
+class TestWarehouse(unittest.TestCase):
+
+    @staticmethod
+    def _new_obj(*args):
+        data = {}
+        if args:
+            data = args[0]
+
+        return types.Warehouse(importer.Importer(importer.Api("", ""), ""), data)
+
+    def test_mutation_name(self):
+        self.assertEqual(self._new_obj().mutation_name, 'createWarehouse')
+
+    def test_query_name(self):
+        self.assertEqual(self._new_obj().query_name, 'warehouse')
+
+    def test_get_import_query(self):
+        data = {"slug": "main", "name": "Main Building", "companyName": "Big Supplier"}
+
+        query = "mutation createWarehouse($input: WarehouseCreateInput!) { createWarehouse(input: $input) { warehouse{ id, slug } } }"
+        variables = {"input": data}
+
+        self.assertEqual(self._new_obj(data).get_import_query(), (query, variables))
