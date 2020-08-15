@@ -24,14 +24,14 @@ class Api:
     def post(self, query, variables):
         client = GraphqlClient(
             endpoint=self.url,
-            headers={"Authorization": "JWT {}".format(self.token)}
+            headers={"Authorization": "Bearer {}".format(self.token)}
         )
         return client.execute(query=query, variables=variables)
 
     def fetchList(self, key, query, variables):
         client = GraphqlClient(
             endpoint=self.url,
-            headers={"Authorization": "JWT {}".format(self.token)}
+            headers={"Authorization": "Bearer {}".format(self.token)}
         )
         result = client.execute(query=query, variables=variables)
         return result.get("data", {}).get(key, {}).get("edges", {})
