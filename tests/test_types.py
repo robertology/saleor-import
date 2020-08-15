@@ -61,6 +61,33 @@ class TestCategory(unittest.TestCase):
         self.assertEqual(self._new_obj(data).get_import_query(), (query, variables))
 
 
+class TestProduct(unittest.TestCase):
+
+    @staticmethod
+    def _new_obj(*args):
+        data = {}
+        if args:
+            data = args[0]
+
+        return types.Product(importer.Importer(importer.Api("", ""), ""), data)
+
+    def test_mutation_name(self):
+        self.assertEqual(self._new_obj().mutation_name, 'productCreate')
+
+    def test_query_name(self):
+        self.assertEqual(self._new_obj().query_name, 'product')
+
+    def test_get_import_query(self):
+        data = {"slug": "robot", "name": "Robot", "chargeTaxes": True, "basePrice": 5.99}
+
+        query = "mutation productCreate($input: ProductCreateInput!) { productCreate(input: $input) { product{ id, slug } } }"
+        variables = {"isPublished": False, "trackInventory": False}
+        variables.update(data)
+        variables = {"input": variables}
+
+        self.assertEqual(self._new_obj(data).get_import_query(), (query, variables))
+
+
 class TestProductType(unittest.TestCase):
 
     @staticmethod

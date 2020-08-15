@@ -178,6 +178,78 @@ class Category(ImportType):
         }
 
 
+class Product(ImportType):
+    @property
+    def mutation_name(self):
+        return "productCreate"
+
+    @property
+    def _mutation_return_query(self):
+        return "product{ id, slug }"
+
+    @property
+    def _mutation_input_definition(self):
+        return {
+            "slug": "",
+            "name": "",
+            "sku": "",
+            "description": "",
+            "category": "",
+            "productType": "",
+            "basePrice": 0.0,
+            "stocks": [{"warehouse": "", "quantity": 0}],
+            "attributes": [{"slug": "", "values": [""]}],
+            "publicationDate": "",
+            "chargeTaxes": False,
+            "isPublished": False,
+            "trackInventory": False,
+            "seo": {"title": "", "description": ""},
+            "taxCode": "",
+            "weight": "",
+        }
+
+    @property
+    def _mutation_input_data(self):
+        data = super()._get_import_data()
+
+        if "attributes" in data:
+            temp = []
+            for v in data["attributes"]:
+                v = self.importer.getAttribute(v)
+                if v:
+                    temp.append(v)
+            if temp:
+                data["attributes"] = temp
+
+        if "category" in data:
+            obj = self.importer.getCategory(data.get("category"))
+            if obj:
+                data["category"] = obj["id"]
+
+        if "productType" in data:
+            obj = self.importer.getProductType(data.get("productType"))
+            if obj:
+                data["productType"] = obj["id"]
+
+        if "stocks" in data:
+            temp = []
+            for v in data["stocks"]:
+                warehouse = self.importer.getWarehouse(v["warehouse"])
+                if warehouse:
+                    v["warehouse"] = warehouse["id"]
+                    temp.append(v)
+            if temp:
+                data["stocks"] = temp
+
+        return {"input": data}
+
+    @property
+    def _mutation_input_types(self):
+        return {
+            "input": "ProductCreateInput!",
+        }
+
+
 class ProductType(ImportType):
     @property
     def mutation_name(self):
