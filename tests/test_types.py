@@ -21,7 +21,7 @@ class TestAttribute(unittest.TestCase):
         self.assertEqual(self._new_obj().query_name, 'attribute')
 
     def test_get_import_query(self):
-        data = {"slug": "color", "name": "Color", "filterableInDashboard": False}
+        data = {"slug": "color", "name": "Color", "filterableInDashboard": False, "inputType": "MULTISELECT"}
 
         query = "mutation attributeCreate($input: AttributeCreateInput!) { attributeCreate(input: $input) { attribute{ id, slug } } }"
         variables = {

@@ -79,10 +79,6 @@ class ImportType(ABC):
                     value = val
 
                 if isinstance(val, list):
-                    if isinstance(val[0], str):
-                        if value not in val:
-                            value = None
-
                     if isinstance(val[0], dict):
                         if isinstance(value, dict):
                             temp = ()
@@ -94,6 +90,10 @@ class ImportType(ABC):
                             value = temp
                         else:
                             value = None
+
+                if val and isinstance(val, str):
+                    if value not in val.split("|"):
+                        value = None
 
                 if value is not None:
                     data[key] = value
@@ -115,7 +115,7 @@ class Attribute(ImportType):
         return {
             "slug": "",
             "name": "",
-            "inputType": ("DROPDOWN", "MULTISELECT"),
+            "inputType": "DROPDOWN|MULTISELECT",
             "values": ({"name": ""}),
             "valueRequired": True,
             "isVariantOnly": False,
