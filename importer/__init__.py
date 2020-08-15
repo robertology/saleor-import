@@ -14,12 +14,27 @@ class Api:
         (query, variables) = obj.get_import_query()
         return self.post(query, variables)
 
+    def fetchObject(self, obj, key, identity):
+        (query, variables) = obj.get_search_query(key, identity)
+        for node in self.fetchList(obj.search_query_name, query, variables):
+            entry = node.get("node")
+            if entry.get(key) == identity:
+                return entry
+
     def post(self, query, variables):
         client = GraphqlClient(
             endpoint=self.url,
             headers={"Authorization": "JWT {}".format(self.token)}
         )
         return client.execute(query=query, variables=variables)
+
+    def fetchList(self, key, query, variables):
+        client = GraphqlClient(
+            endpoint=self.url,
+            headers={"Authorization": "JWT {}".format(self.token)}
+        )
+        result = client.execute(query=query, variables=variables)
+        return result.get("data", {}).get(key, {}).get("edges", {})
 
 
 class Importer:
@@ -63,8 +78,14 @@ class Importer:
         self.log_file.write(json.dumps(data) + "\n")
 
     def getAttribute(self, slug):
-        # TODO get from API if not cached
-        return self.cache.get("attribute", {}).get(slug)
+        type = "attribute"
+        obj = self.cache.get(type, {}).get(slug)
+        if not obj:
+            obj = self.api.fetchObject(ImportType.factory(type, self, {}), "slug", slug)
+            if obj:
+                self._cache(type, obj, slug)
+
+        return obj
 
     def getCategory(self, slug):
         # TODO get from API if not cached

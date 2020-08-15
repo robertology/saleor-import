@@ -28,6 +28,16 @@ class ImportType(ABC):
         pass
 
     @property
+    #@abstractmethod
+    def search_query_name(self):
+        pass
+
+    @property
+    #@abstractmethod
+    def _search_query_input_name(self):
+        pass
+
+    @property
     def query_name(self):
         return self._mutation_return_query.split('{', 1)[0]
 
@@ -35,6 +45,12 @@ class ImportType(ABC):
     def factory(type, *data):
         if type == "category": return Category(*data)
         if type == "attribute": return Attribute(*data)
+
+    def get_search_query(self, key, identity):
+        variables = {"filter": {"search": identity}}
+        query = "query fetch($filter: {}) {{ {} (filter: $filter, first: 99) {{ edges {{ node {{ id, {} }} }} }} }}".format(self._search_query_input_name, self.search_query_name, key)
+
+        return (query, variables)
 
     def get_import_query(self):
         data = self._mutation_input_data
@@ -105,6 +121,14 @@ class ImportType(ABC):
 
 
 class Attribute(ImportType):
+    @property
+    def search_query_name(self):
+        return "attributes"
+
+    @property
+    def _search_query_input_name(self):
+        return "AttributeFilterInput"
+
     @property
     def mutation_name(self):
         return "attributeCreate"
