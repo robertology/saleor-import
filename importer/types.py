@@ -300,6 +300,60 @@ class ProductType(ImportType):
         }
 
 
+class ProductVariant(ImportType):
+    @property
+    def mutation_name(self):
+        return "productVariantCreate"
+
+    @property
+    def _mutation_return_query(self):
+        return "productVariant{ id, sku }"
+
+    @property
+    def _mutation_input_definition(self):
+        return {
+            "sku": "",
+            "product": "",
+            "costPrice": 0.0,
+            "priceOverride": 0.0,
+            "stocks": [{"warehouse": "", "quantity": 0}],
+            "attributes": [{"slug": "", "values": [""]}],
+            "trackInventory": False,
+            "weight": "",
+        }
+
+    @property
+    def _mutation_input_data(self):
+        data = super()._get_import_data()
+
+        if "attributes" in data:
+            temp = []
+            for v in data["attributes"]:
+                v = self.importer.getAttribute(v)
+                if v:
+                    temp.append(v)
+            if temp:
+                data["attributes"] = temp
+
+        if "stocks" in data:
+            temp = []
+            for v in data["stocks"]:
+                warehouse = self.importer.getWarehouse(v["warehouse"])
+                if warehouse:
+                    v["warehouse"] = warehouse["id"]
+                    temp.append(v)
+            if temp:
+                data["stocks"] = temp
+
+        return {"input": data}
+
+    @property
+    def _mutation_input_types(self):
+        return {
+            "input": "ProductVariantCreateInput!",
+        }
+
+
 class Warehouse(ImportType):
     @property
     def mutation_name(self):

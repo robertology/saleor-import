@@ -115,6 +115,33 @@ class TestProductType(unittest.TestCase):
         self.assertEqual(self._new_obj(data).get_import_query(), (query, variables))
 
 
+class TestProductVariant(unittest.TestCase):
+
+    @staticmethod
+    def _new_obj(*args):
+        data = {}
+        if args:
+            data = args[0]
+
+        return types.ProductVariant(importer.Importer(importer.Api("", ""), ""), data)
+
+    def test_mutation_name(self):
+        self.assertEqual(self._new_obj().mutation_name, 'productVariantCreate')
+
+    def test_query_name(self):
+        self.assertEqual(self._new_obj().query_name, 'productVariant')
+
+    def test_get_import_query(self):
+        data = {"priceOverride": 19.95, "sku": "ASDF-1234", "product": "robot"}
+
+        query = "mutation productVariantCreate($input: ProductVariantCreateInput!) { productVariantCreate(input: $input) { productVariant{ id, sku } } }"
+        variables = {"trackInventory": False}
+        variables.update(data)
+        variables = {"input": variables}
+
+        self.assertEqual(self._new_obj(data).get_import_query(), (query, variables))
+
+
 class TestWarehouse(unittest.TestCase):
 
     @staticmethod
