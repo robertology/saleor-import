@@ -43,8 +43,12 @@ class ImportType(ABC):
 
     @staticmethod
     def factory(type, *data):
-        if type == "category": return Category(*data)
         if type == "attribute": return Attribute(*data)
+        if type == "category": return Category(*data)
+        if type == "product": return Product(*data)
+        if type == "productType": return ProductType(*data)
+        if type == "productVariant": return ProductVariant(*data)
+        if type == "warehouse": return Warehouse(*data)
 
     def get_search_query(self, key, identity):
         variables = {"filter": {"search": identity}}
