@@ -79,17 +79,20 @@ class ImportType(ABC):
                     value = val
 
                 if isinstance(val, list):
-                    if isinstance(val[0], dict):
-                        if isinstance(value, dict):
-                            temp = ()
-                            for v in value:
-                                v = self._get_data_from_definition(val[0], v)
+                    if isinstance(value, list):
+                        value = None
+                    else:
+                        temp = ()
+                        required_type = type(val[0])
+                        recurse = isinstance(val[0], dict)
+                        for v in value:
+                            if isinstance(v, required_type):
+                                if recurse:
+                                    v = self._get_data_from_definition(val[0], v)
                                 if v:
                                     temp.push = v
 
-                            value = temp
-                        else:
-                            value = None
+                        value = temp
 
                 if val and isinstance(val, str):
                     if value not in val.split("|"):
