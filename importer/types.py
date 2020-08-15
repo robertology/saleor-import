@@ -28,12 +28,12 @@ class ImportType(ABC):
         pass
 
     @property
-    #@abstractmethod
+    @abstractmethod
     def search_query_name(self):
         pass
 
     @property
-    #@abstractmethod
+    @abstractmethod
     def _search_query_input_name(self):
         pass
 
@@ -166,6 +166,14 @@ class Attribute(ImportType):
 
 class Category(ImportType):
     @property
+    def search_query_name(self):
+        return "categories"
+
+    @property
+    def _search_query_input_name(self):
+        return "CategoryFilterInput"
+
+    @property
     def mutation_name(self):
         return "categoryCreate"
 
@@ -188,7 +196,7 @@ class Category(ImportType):
         data = {"input": super()._get_import_data()}
 
         if self.data.get("parent"):
-            parent = self.importer.getCategory(self.data.get("parent"))
+            parent = self.importer.getItemBySlug("category", self.data.get("parent"))
             if parent:
                 data["parent"] = parent["id"]
 
@@ -203,6 +211,14 @@ class Category(ImportType):
 
 
 class Product(ImportType):
+    @property
+    def search_query_name(self):
+        return "products"
+
+    @property
+    def _search_query_input_name(self):
+        return "ProductFilterInput"
+
     @property
     def mutation_name(self):
         return "productCreate"
@@ -239,26 +255,26 @@ class Product(ImportType):
         if "attributes" in data:
             temp = []
             for v in data["attributes"]:
-                v = self.importer.getAttribute(v)
+                v = self.importer.getItemBySlug("attribute", v)
                 if v:
                     temp.append(v)
             if temp:
                 data["attributes"] = temp
 
         if "category" in data:
-            obj = self.importer.getCategory(data.get("category"))
+            obj = self.importer.getItemBySlug("category", data.get("category"))
             if obj:
                 data["category"] = obj["id"]
 
         if "productType" in data:
-            obj = self.importer.getProductType(data.get("productType"))
+            obj = self.importer.getItemBySlug("productType", data.get("productType"))
             if obj:
                 data["productType"] = obj["id"]
 
         if "stocks" in data:
             temp = []
             for v in data["stocks"]:
-                warehouse = self.importer.getWarehouse(v["warehouse"])
+                warehouse = self.importer.getItemBySlug("warehouse", v["warehouse"])
                 if warehouse:
                     v["warehouse"] = warehouse["id"]
                     temp.append(v)
@@ -275,6 +291,14 @@ class Product(ImportType):
 
 
 class ProductType(ImportType):
+    @property
+    def search_query_name(self):
+        return "productTypes"
+
+    @property
+    def _search_query_input_name(self):
+        return "ProductTypeFilterInput"
+
     @property
     def mutation_name(self):
         return "productTypeCreate"
@@ -304,14 +328,14 @@ class ProductType(ImportType):
         if "productAttributes" in data:
             temp = []
             for v in data["productAttributes"]:
-                v = self.importer.getAttribute(v)
+                v = self.importer.getItemBySlug("attribute", v)
                 if v:
                     temp.append(v)
 
         if "variantAttributes" in data:
             temp = []
             for v in data["variantAttributes"]:
-                v = self.importer.getAttribute(v)
+                v = self.importer.getItemBySlug("attribute", v)
                 if v:
                     temp.append(v)
 
@@ -325,6 +349,14 @@ class ProductType(ImportType):
 
 
 class ProductVariant(ImportType):
+    @property
+    def search_query_name(self):
+        return "attributes"
+
+    @property
+    def _search_query_input_name(self):
+        return ""
+
     @property
     def mutation_name(self):
         return "productVariantCreate"
@@ -353,7 +385,7 @@ class ProductVariant(ImportType):
         if "attributes" in data:
             temp = []
             for v in data["attributes"]:
-                v = self.importer.getAttribute(v)
+                v = self.importer.getItemBySlug("attribute", v)
                 if v:
                     temp.append(v)
             if temp:
@@ -362,7 +394,7 @@ class ProductVariant(ImportType):
         if "stocks" in data:
             temp = []
             for v in data["stocks"]:
-                warehouse = self.importer.getWarehouse(v["warehouse"])
+                warehouse = self.importer.getItemBySlug("warehouse", v["warehouse"])
                 if warehouse:
                     v["warehouse"] = warehouse["id"]
                     temp.append(v)
@@ -379,6 +411,14 @@ class ProductVariant(ImportType):
 
 
 class Warehouse(ImportType):
+    @property
+    def search_query_name(self):
+        return "warehouses"
+
+    @property
+    def _search_query_input_name(self):
+        return "WarehouseFilterInput"
+
     @property
     def mutation_name(self):
         return "createWarehouse"

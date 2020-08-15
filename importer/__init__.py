@@ -77,8 +77,7 @@ class Importer:
     def _log(self, data):
         self.log_file.write(json.dumps(data) + "\n")
 
-    def getAttribute(self, slug):
-        type = "attribute"
+    def getItemBySlug(self, type, slug):
         obj = self.cache.get(type, {}).get(slug)
         if not obj:
             obj = self.api.fetchObject(ImportType.factory(type, self, {}), "slug", slug)
@@ -86,15 +85,3 @@ class Importer:
                 self._cache(type, obj, slug)
 
         return obj
-
-    def getCategory(self, slug):
-        # TODO get from API if not cached
-        return self.cache.get("category", {}).get(slug)
-
-    def getProductType(self, slug):
-        # TODO get from API if not cached
-        return self.cache.get("productType", {}).get(slug)
-
-    def getWarehouse(self, slug):
-        # TODO get from API if not cached
-        return self.cache.get("warehouse", {}).get(slug)
