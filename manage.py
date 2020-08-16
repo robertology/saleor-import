@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import asyncio
 import importer
 
 print("""
@@ -16,9 +17,7 @@ url = input('URL: ')
 token = input('API Token: ')
 filepath = input('Path to File: ')
 
-output_file = importer.Importer(
-    importer.Api(url, token),
-    filepath,
-).process()
+importer = importer.Importer(importer.Api(url, token), filepath)
+output_file = asyncio.run(importer.process())
 
 print("Results are in: {}".format(output_file.name))

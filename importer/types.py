@@ -56,8 +56,8 @@ class ImportType(ABC):
 
         return (query, variables)
 
-    def get_import_query(self):
-        data = self._mutation_input_data
+    async def get_import_query(self):
+        data = await self._mutation_input_data
         input_types = {name: type for name, type in self._mutation_input_types.items() if name in data}
 
         mutation_name = self.mutation_name
@@ -158,7 +158,7 @@ class Attribute(ImportType):
         }
 
     @property
-    def _mutation_input_data(self):
+    async def _mutation_input_data(self):
         return {"input": super()._get_import_data()}
 
     @property
@@ -196,7 +196,7 @@ class Category(ImportType):
         }
 
     @property
-    def _mutation_input_data(self):
+    async def _mutation_input_data(self):
         data = {"input": super()._get_import_data()}
 
         if self.data.get("parent"):
@@ -253,7 +253,7 @@ class Product(ImportType):
         }
 
     @property
-    def _mutation_input_data(self):
+    async def _mutation_input_data(self):
         data = super()._get_import_data()
 
         if "attributes" in data:
@@ -326,7 +326,7 @@ class ProductType(ImportType):
         }
 
     @property
-    def _mutation_input_data(self):
+    async def _mutation_input_data(self):
         data = super()._get_import_data()
 
         if "productAttributes" in data:
@@ -383,7 +383,7 @@ class ProductVariant(ImportType):
         }
 
     @property
-    def _mutation_input_data(self):
+    async def _mutation_input_data(self):
         data = super()._get_import_data()
 
         if "attributes" in data:
@@ -452,7 +452,7 @@ class Warehouse(ImportType):
         }
 
     @property
-    def _mutation_input_data(self):
+    async def _mutation_input_data(self):
         data = super()._get_import_data()
         return {"input": data}
 
