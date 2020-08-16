@@ -46,6 +46,7 @@ class ImportType(ABC):
         if type == "attribute": return Attribute(*data)
         if type == "category": return Category(*data)
         if type == "product": return Product(*data)
+        if type == "productImage": return ProductImage(*data)
         if type == "productType": return ProductType(*data)
         if type == "productVariant": return ProductVariant(*data)
         if type == "warehouse": return Warehouse(*data)
@@ -75,11 +76,14 @@ class ImportType(ABC):
             "mutation {} {{ {}({}) {{ {} }} }}".format(
                 mutation_name,
                 self.mutation_name,
-                ",".join(inputs),
+                self._format_mutation_inputs(inputs),
                 self._mutation_return_query,
             ),
             data
         )
+
+    def _format_mutation_inputs(self, inputs):
+        return ", ".join(inputs)
 
     def _get_import_data(self):
         return self._get_data_from_definition(self._mutation_input_definition, self.data)
@@ -292,6 +296,57 @@ class Product(ImportType):
         return {
             "input": "ProductCreateInput!",
         }
+
+
+class ProductImage(ImportType):
+    @property
+    def search_query_name(self):
+        return ""
+
+    @property
+    def _search_query_input_name(self):
+        return ""
+
+    @property
+    def mutation_name(self):
+        return "productImageCreate"
+
+    @property
+    def _mutation_return_query(self):
+        return "image{ id }"
+
+    @property
+    def _mutation_input_definition(self):
+        return {
+            "image": "",
+            "product": "",
+            "alt": "",
+        }
+
+    @property
+    async def _mutation_input_data(self):
+        data = super()._get_import_data()
+
+        if "image" in data:
+            data["image"] = open(data["image"], "rb")
+
+        if "product" in data:
+            product = await self.importer.getItemBySlug("product", data["product"])
+            data["product"] = product.get("id")
+
+        return data
+
+    @property
+    def _mutation_input_types(self):
+        return {
+            "image": "Upload!",
+            "product": "ID!",
+            "alt": "String",
+        }
+
+    def _format_mutation_inputs(self, inputs):
+        return "input: {{ {} }}".format(super()._format_mutation_inputs(inputs))
+
 
 
 class ProductType(ImportType):
