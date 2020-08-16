@@ -200,7 +200,7 @@ class Category(ImportType):
         data = {"input": super()._get_import_data()}
 
         if self.data.get("parent"):
-            parent = self.importer.getItemBySlug("category", self.data.get("parent"))
+            parent = await self.importer.getItemBySlug("category", self.data.get("parent"))
             if parent:
                 data["parent"] = parent["id"]
 
@@ -259,26 +259,26 @@ class Product(ImportType):
         if "attributes" in data:
             temp = []
             for v in data["attributes"]:
-                v = self.importer.getItemBySlug("attribute", v)
+                v = await self.importer.getItemBySlug("attribute", v)
                 if v:
-                    temp.append(v)
+                    temp.append(v["id"])
             if temp:
                 data["attributes"] = temp
 
         if "category" in data:
-            obj = self.importer.getItemBySlug("category", data.get("category"))
+            obj = await self.importer.getItemBySlug("category", data.get("category"))
             if obj:
                 data["category"] = obj["id"]
 
         if "productType" in data:
-            obj = self.importer.getItemBySlug("productType", data.get("productType"))
+            obj = await self.importer.getItemBySlug("productType", data.get("productType"))
             if obj:
                 data["productType"] = obj["id"]
 
         if "stocks" in data:
             temp = []
             for v in data["stocks"]:
-                warehouse = self.importer.getItemBySlug("warehouse", v["warehouse"])
+                warehouse = await self.importer.getItemBySlug("warehouse", v["warehouse"])
                 if warehouse:
                     v["warehouse"] = warehouse["id"]
                     temp.append(v)
@@ -332,16 +332,18 @@ class ProductType(ImportType):
         if "productAttributes" in data:
             temp = []
             for v in data["productAttributes"]:
-                v = self.importer.getItemBySlug("attribute", v)
+                v = await self.importer.getItemBySlug("attribute", v)
                 if v:
-                    temp.append(v)
+                    temp.append(v.get("id"))
+            data["productAttributes"] = temp
 
         if "variantAttributes" in data:
             temp = []
             for v in data["variantAttributes"]:
-                v = self.importer.getItemBySlug("attribute", v)
+                v = await self.importer.getItemBySlug("attribute", v)
                 if v:
-                    temp.append(v)
+                    temp.append(v.get("id"))
+            data["variantAttributes"] = temp
 
         return {"input": data}
 
@@ -389,16 +391,16 @@ class ProductVariant(ImportType):
         if "attributes" in data:
             temp = []
             for v in data["attributes"]:
-                v = self.importer.getItemBySlug("attribute", v)
-                if v:
-                    temp.append(v)
+                attr = await self.importer.getItemBySlug("attribute", v)
+                if attr:
+                    temp.append({"id": attr.get("id"), "values": v.get("values", [])})
             if temp:
                 data["attributes"] = temp
 
         if "stocks" in data:
             temp = []
             for v in data["stocks"]:
-                warehouse = self.importer.getItemBySlug("warehouse", v["warehouse"])
+                warehouse = await self.importer.getItemBySlug("warehouse", v["warehouse"])
                 if warehouse:
                     v["warehouse"] = warehouse["id"]
                     temp.append(v)
